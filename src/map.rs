@@ -2,6 +2,7 @@
 use std::marker;
 
 use crate::{key::Key, storage::Storage};
+use std::ops::Index;
 
 /// A fixed map with a predetermined size.
 ///
@@ -512,6 +513,39 @@ where
     K: Key<K, V>,
     K::Storage: Eq,
 {
+}
+
+impl<K, V> Index<K> for Map<K, V>
+where
+    K: Key<K, V>,
+{
+    type Output = V;
+
+    /// Returns a reference to the value corresponding to the supplied key.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fixed_map::{Key, Map};
+    ///
+    /// #[derive(Clone, Copy, Key)]
+    /// enum Key {
+    ///     One,
+    ///     Two,
+    /// }
+    ///
+    /// let mut map = Map::new();
+    /// map.insert(Key::One, "a");
+    /// assert_eq!(map[Key::One], "a");
+    /// ```
+    ///
+    /// # Panics
+    ///
+    /// Panics if the key is not present in the `Map`.
+    #[inline]
+    fn index(&self, key: K) -> &Self::Output {
+        self.get(key).expect("no entry found for key")
+    }
 }
 
 /// An iterator over the entries of a `Map`.
